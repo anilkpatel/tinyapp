@@ -24,4 +24,7 @@ app.get("/urls.json", (req, res) => { //JSON string with entire urlDatabase obje
   res.json(urlDatabase);
 });
 
+app.get("/hello", (req, res) => { //HTML response code, rendered in client
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
 
