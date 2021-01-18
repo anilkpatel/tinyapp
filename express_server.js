@@ -35,5 +35,5 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
 
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
   const templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
 });
