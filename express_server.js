@@ -28,3 +28,5 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+//can verify with curl -i http://localhost:8080/hello
+// run from new terminal, with server up in other terminal
