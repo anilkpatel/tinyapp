@@ -9,8 +9,6 @@ const PORT = 8080; // default
 
 app.set("view engine", "ejs");
 
-
-
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -34,3 +32,8 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
 
 //can verify with curl -i http://localhost:8080/hello
 // run from new terminal, with server up in other terminal
+
+app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
+});
