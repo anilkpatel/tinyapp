@@ -16,7 +16,7 @@ function generateRandomString() {
   const randomUrl = "";
   const universal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-  for (var i = 0; i < 5; i++)
+  for (var i = 0; i < 6; i++)
     randomUrl += possible.charAt(Math.floor(Math.random() * universal.length));
   return randomUrl;
 };
@@ -68,3 +68,25 @@ app.post("/urls", (req, res) => { // send post request to /urls, where location
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
+
+app.post("/urls", (req, res) => {
+  console.log(req.body); 
+  const shortUrl = generateRandomString(); // from above
+  //console.log(shortUrl);
+  const longUrl = req.body.longURL; // access key from object 
+  //console.log(longUrl)
+    urlDatabase[shortUrl] = longUrl //requests to endpoint "/u/:shortURL" will redirect to its longURL
+  //console.log(urlDatabase);
+  res.redirect(longURL);
+});
+
+/* Pseudocode
+  * Log the POST requests body to the console
+  * Call will generate URL function
+  * Saves to variable, placed in dbase, variable is the key
+  * Actual value is [req.body.longURL] 
+  * Then call fn and get short URL
+  * res.send("Ok");
+  * Respond with 'Ok' 
+  * res.redirect('/urls'); //redirect 
+*/
