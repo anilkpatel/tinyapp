@@ -9,7 +9,7 @@ const PORT = 8080; // default
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {
+const urlDatabase = { //use JS to get long url from short url based on dabse 
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
@@ -33,7 +33,15 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
 //can verify with curl -i http://localhost:8080/hello
 // run from new terminal, with server up in other terminal
 
+//tells browser what to do
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
   const templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
+});
+
+//access urlDatabase object 
+app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is parameter (object where key is name, value is what user types in to browser)
+  console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; // want JS to get two to match 
+  res.render("urls_show", templateVars); //passed both urls into templateVars object 
 });
