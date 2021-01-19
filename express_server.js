@@ -7,6 +7,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default 
 
+const bodyParser = require("body-parser"); //convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body. 
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.set("view engine", "ejs");
 
 const urlDatabase = { //use JS to get long url from short url based on dabse 
