@@ -13,8 +13,15 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
 function generateRandomString() {
+  const randomUrl = "";
+  const universal = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-}
+  for (var i = 0; i < 5; i++)
+    randomUrl += possible.charAt(Math.floor(Math.random() * universal.length));
+  return randomUrl;
+};
+
+//console.log(generateRandomString()); 
 
 const urlDatabase = { //use JS to get long url from short url based on dabse 
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -57,7 +64,7 @@ app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is p
   res.render("urls_show", templateVars); //passed both urls into templateVars object 
 });
 
-app.post("/urls", (req, res) => {
+app.post("/urls", (req, res) => { // send post request to /urls, where location
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
