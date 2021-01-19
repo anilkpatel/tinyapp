@@ -39,6 +39,10 @@ app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.
   res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
 });
 
+app.get("/urls/new", (req, res) => { //route handler will render the page with the form; needs to be defined before below 
+  res.render("urls_new");
+});
+
 //access urlDatabase object 
 app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is parameter (object where key is name, value is what user types in to browser)
   console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
