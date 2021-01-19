@@ -44,9 +44,6 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-//can verify with curl -i http://localhost:8080/hello
-// run from new terminal, with server up in other terminal
-
 //tells browser what to do // URL LIST (can go thru browser or the redirect)
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
   const templateVars = { urls: urlDatabase };
@@ -70,6 +67,19 @@ app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value
   res.redirect(longURL);
 });
 
+//Most specific to least specific, there this POST before next
+//POST request to removes a URL resource: POST /urls/:shortURL/delete
+// delete longURL from dbase using req, res
+app.post('/urls/:shortURL/delete', (req, res) => { //SAVE longURL from short
+  //send request to delete, use params  
+  const shortUrl = req.params.shortURL; 
+  console.log(shortUrl); 
+  //get longURL from dbase, access property of object (dbase), shortURL is key   
+  delete urlDatabase[req.params.shortURL]; // value of shortUrl is the key; longURL is value. 
+  //console.log(urlDatabase);
+  res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
+});
+
 app.post("/urls", (req, res) => { //SAVE longURL from short
   //console.log(req.body); 
   const shortUrl = generateRandomString(); // from above
@@ -80,6 +90,9 @@ app.post("/urls", (req, res) => { //SAVE longURL from short
   //console.log(urlDatabase);
   res.redirect("/urls"); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
 });
+
+//can verify with curl -i http://localhost:8080/hello
+// run from new terminal, with server up in other terminal
 
 /* Pseudocode
   * SAVE the POST requests body to the server 
