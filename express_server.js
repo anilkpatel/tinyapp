@@ -54,18 +54,22 @@ app.get("/urls/new", (req, res) => { //route handler will render the page with t
   res.render("urls_new");
 });
 
-//access urlDatabase object 
-app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is parameter (object where key is name, value is what user types in to browser)
-  console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; // want JS to get two to match 
-  res.render("urls_show", templateVars); //passed both urls into templateVars object 
-});
-
 app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value pairs 
   const shortUrl = req.params.shortURL; //not body, but params cause getting from url
   const longURL = urlDatabase[shortUrl];
   res.redirect(longURL);
 });
+
+app.post ("/urls/:id", (req, res) => { //must match to front end urls_show, but back end noation for path
+  const shortURL = req.params.id //request info from web site address, line 73 calls the web page
+  const longURL = req.body.longURL //info from front end input
+  console.log("start>>>>>>>>>>", longURL);
+  urlDatabase[shortURL] = longURL //object with key = longURL
+  res.redirect("/urls");  //there is no object to render, using redirect
+});
+
+//have front end info in backend, now update dbase
+//use object as dbase, we have key, change longURL in object
 
 //Most specific to least specific, there this POST before next
 //POST request to removes a URL resource: POST /urls/:shortURL/delete
@@ -89,6 +93,14 @@ app.post("/urls", (req, res) => { //SAVE longURL from short
   urlDatabase[shortUrl] = longUrl // value of shortUrl is the key; longURL is value. 
   //console.log(urlDatabase);
   res.redirect("/urls"); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
+});
+
+//access urlDatabase object 
+app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is parameter (object where key is name, value is what user types in to browser)
+  console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; // want JS to get two to match 
+  //console.log("here: >>>>>>>>", urlDatabase[req.params.shortURL]);
+  res.render("urls_show", templateVars); //passed both urls into templateVars object 
 });
 
 //can verify with curl -i http://localhost:8080/hello
