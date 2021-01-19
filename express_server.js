@@ -12,6 +12,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+function generateRandomString() {
+
+}
+
 const urlDatabase = { //use JS to get long url from short url based on dabse 
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -51,4 +55,9 @@ app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is p
   console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; // want JS to get two to match 
   res.render("urls_show", templateVars); //passed both urls into templateVars object 
+});
+
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
 });
