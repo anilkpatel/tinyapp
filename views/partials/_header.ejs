@@ -15,18 +15,21 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-      <% if(username){ %>
-      <h1><%= username %></h1>
+    <% if(username){ %>
       <form id='logout' action='/logout' method='post' accept-charset='UTF-8'> <!--login path, login for username-->
-          <button type="submit" class="btn btn-danger">Logout</button>
+        <fieldset >
+        <!-- <input type='text' name='username' value=''/><%= username %> -->
+        <span>Logged In As: <%= username %></span>
+        <button type="logout" class="btn btn-danger">Logout</button>
+      </fieldset>
       </form>
-    <% } else{ %>  
+    <% } else { %>  
       <form id='login' action='/login' method='post' accept-charset='UTF-8'> <!--login path, login for username-->
-          <fieldset>
-            <legend>Login</legend>
-            <input type='text' name='username' value='' />
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+        <fieldset >
+        <input type='text' name='username' value=''/><%= username %> <!--pass in username to all views to display next to form-->
+        <button type="submit" class="btn btn-primary">Login</button>
+        </fieldset>
+      </form>
     <% } %>
   </nav>
 </header>

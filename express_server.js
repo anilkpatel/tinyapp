@@ -33,6 +33,7 @@ const urlDatabase = { //use JS to get long url from short url based on dabse
 
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");
+  res.cookie['username'];
 });
 
 app.listen(PORT, () => {
@@ -50,6 +51,7 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
 //tells browser what to do // URL LIST (can go thru browser or the redirect)
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
   const templateVars = { urls: urlDatabase, username: req.cookies["username"] }; //pass user name to index, and can see header
+  console.log(templateVars);
   res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
 });
 
@@ -60,8 +62,8 @@ app.get("/urls/new", (req, res) => { //route handler will render the page with t
 
 app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value pairs 
   const shortUrl = req.params.shortURL; //not body, but params cause getting from url
-  const longURL = urlDatabase[shortUrl];
-  res.redirect(longURL);
+  const templateVars = {longURL: urlDatabase[shortUrl], username: req.cookies["username"]}; 
+  res.redirect(templateVars); //sending in response, pass in template with data
 });
 
 
@@ -72,13 +74,12 @@ app.post('/login', (req, res) => { // post req with body
   const userName = req.body.username; 
   //console.log(username); 
   res.cookie('username', userName) //set the cookie using key value pair; client gives username,  
+  const templateVars = {username: req.cookies["username"]}; 
   res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
 });
 
-
-
 //LOGOUT ROUTE: Add endpoint to handle a POST to /login in your Express server
-//set a cookie named username
+//clear the cookie named username
 //do a redirect after call 
 app.post('/logout', (req, res) => { // post req with body
   const userName = req.body.username; 
@@ -86,8 +87,6 @@ app.post('/logout', (req, res) => { // post req with body
   res.clearCookie('username', userName) //set the cookie using key value pair; client gives username,  
   res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
 });
-
-
 
 app.post ("/urls/:id", (req, res) => { //must match to front end urls_show, but back end noation for path
   const shortURL = req.params.id //request info from web site address, line 73 calls the web page
