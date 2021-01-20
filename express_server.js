@@ -10,6 +10,9 @@ const PORT = 8080; // default
 const bodyParser = require("body-parser"); //convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body. 
 app.use(bodyParser.urlencoded({extended: true}));
 
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
 app.set("view engine", "ejs");
 
 function generateRandomString() {
@@ -71,6 +74,20 @@ app.post('/login', (req, res) => { // post req with body
   res.cookie('username', userName) //set the cookie using key value pair; client gives username,  
   res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
 });
+
+
+
+//LOGOUT ROUTE: Add endpoint to handle a POST to /login in your Express server
+//set a cookie named username
+//do a redirect after call 
+app.post('/logout', (req, res) => { // post req with body
+  const userName = req.body.username; 
+  //console.log(username); 
+  res.clearCookie('username', userName) //set the cookie using key value pair; client gives username,  
+  res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
+});
+
+
 
 app.post ("/urls/:id", (req, res) => { //must match to front end urls_show, but back end noation for path
   const shortURL = req.params.id //request info from web site address, line 73 calls the web page
