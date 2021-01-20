@@ -46,12 +46,13 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
 
 //tells browser what to do // URL LIST (can go thru browser or the redirect)
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies["username"] }; //pass user name to index, and can see header
   res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
 });
 
 app.get("/urls/new", (req, res) => { //route handler will render the page with the form; needs to be defined before below 
-  res.render("urls_new");
+  const templateVars = {username: req.cookies["username"]}; 
+  res.render("urls_new", templateVars); //local varibale 
 });
 
 app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value pairs 
@@ -65,7 +66,6 @@ app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value
 //set a cookie named username
 //do a redirect after call 
 app.post('/login', (req, res) => { // post req with body
-  //send request to delete, use params  
   const userName = req.body.username; 
   //console.log(username); 
   res.cookie('username', userName) //set the cookie using key value pair; client gives username,  
@@ -110,7 +110,7 @@ app.post("/urls", (req, res) => { //SAVE longURL from short
 //access urlDatabase object 
 app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is parameter (object where key is name, value is what user types in to browser)
   console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }; // want JS to get two to match 
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"]}; // want JS to get two to match 
   //console.log("here: >>>>>>>>", urlDatabase[req.params.shortURL]);
   res.render("urls_show", templateVars); //passed both urls into templateVars object 
 });
@@ -126,7 +126,12 @@ app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is p
   * Then call fn and get short URL
   * res.send("Ok"); completes request 
   * res.redirect('/urls'); //redirect replaces the send
-*/
+
+  *Modify routes to render templates 
+  *Pass username to EJS template
+  *Know if user logged in, and username 
+
+  */
 
 //Curl validate if URL is saved in dbase
 //Browser validate if redirect is occurring
