@@ -18,7 +18,7 @@
     <form id='login' action='/login' method='post' accept-charset='UTF-8'> <!--login path, login for username-->
       <fieldset >
       <legend>Login</legend>
-      <input type='text' name='username' value=''/>
+      <input type='text' name='username' value=''/><%= username %> <!--pass in username to all views to display next to form-->
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
   </nav>
