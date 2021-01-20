@@ -31,6 +31,42 @@ const urlDatabase = { //use JS to get long url from short url based on dabse
   "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+//User Registration Form
+//GET /register endpoint for Registration Page 
+
+app.get("/register", (req, res) => {  //returns registration template on the root path, "/".
+  res.render("register"); //local varibale
+});
+
+//Registering New Users
+//POST / register, to allow authentification / registration 
+app.post("/register", (req, res) => { //add new user obj to new user dbase
+  const userID = generateRandomString();
+  //reg form in body of req, save into user object
+  //user ID is key
+   users[userID] = {
+    id: req.body.email, 
+    email: req.body.email, 
+    password: req.body.password
+  } 
+  res.cookie['user_id', userID];
+  console.log(users);
+  res.redirect("/urls");
+  });
+
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");
   res.cookie['username'];
