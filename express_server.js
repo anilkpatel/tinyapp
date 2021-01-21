@@ -3,6 +3,9 @@
 //TinyApp
 //Anil Patel
 
+const { emailExists, passwordMatching } = require("./helpers/userHelpers.js");
+//const { emailExists, passwordMatching } = require('./helpers/userHelpers')
+
 const express = require("express");
 const app = express();
 const PORT = 8080; // default 
@@ -47,27 +50,42 @@ const users = {
 //User Registration Form
 //GET /register endpoint for Registration Page 
 
+////CHANGE: email is harcoded /////
 app.get("/register", (req, res) => {  //returns registration template on the root path, "/".
   const templateVars = { username: "user@example.com" }; // Pass object to templetes via templateVars 
   res.render("register", templateVars); //local varibale
   //console.log();
 });
 
+
 //Registering New Users
 //POST / register, to allow authentification / registration 
 app.post("/register", (req, res) => { //add new user obj to new user dbase
-  const userID = generateRandomString();
+  const {email} = req.body // destructuring 
+  const {password} = req.body
+
+  console.log("here", emailExists(users, email), users[email], email);
+  if(!emailExists(users,email) && password.length) { //Modify POST /register endpoint for erros:
+    //register
+    const userID = generateRandomString();
   //reg form in body of req, save into user object
   //user ID is key
-   users[userID] = {
-    id: userID, //free flaoting variable, not in body
-    email: req.body.email, 
-    password: req.body.password
-  } 
+    users[userID] = {
+     id: userID, 
+     email, 
+     password
+    } 
   res.cookie('user_id', userID);
   console.log(users); //round brackets
   res.redirect("/urls");
-  });
+  } else {
+    // send 400
+    const errors = []
+    if(!password.length) errors.push('password length is 0')
+    else errors.push('email exists')
+    res.status(400).json({ errors: errors.join(', ') })
+  }
+});
 
 //Passing the user Object to the _header, find endpoints for templates, define template Vars there to render 
 app.get("user_id", (req, res) => { //look up user object in users object using user_idadded : means what comes after is parameter (object where key is name, value is what user types in to browser)
@@ -117,6 +135,12 @@ app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value
 });
 
 
+///ERROR: Need to change username to user, read cookie, get userID from cookie, 
+//look up userID in database, if locate pass into templateVars
+//update for all pages using _header.ejs
+
+
+
 //LOGIN ROUTE: Add endpoint to handle a POST to /login in your Express server
 //set a cookie named username
 //do a redirect after call 
@@ -127,6 +151,10 @@ app.post('/login', (req, res) => { // post req with body
   const templateVars = {username: req.cookies["username"]}; 
   res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
 });
+////CHANGE ABOVE: Post Log in End Point, using email and password to verify user
+///if find, set cookie, not username but userID, everywhere use cookie change to userID
+//Cookie parser??
+
 
 //LOGOUT ROUTE: Add endpoint to handle a POST to /login in your Express server
 //clear the cookie named username
