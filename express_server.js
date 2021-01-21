@@ -48,7 +48,9 @@ const users = {
 //GET /register endpoint for Registration Page 
 
 app.get("/register", (req, res) => {  //returns registration template on the root path, "/".
-  res.render("register"); //local varibale
+  const templateVars = { username: "user@example.com" }; // Pass object to templetes via templateVars 
+  res.render("register", templateVars); //local varibale
+  //console.log();
 });
 
 //Registering New Users
@@ -58,14 +60,26 @@ app.post("/register", (req, res) => { //add new user obj to new user dbase
   //reg form in body of req, save into user object
   //user ID is key
    users[userID] = {
-    id: req.body.email, 
+    id: userID, //free flaoting variable, not in body
     email: req.body.email, 
     password: req.body.password
   } 
-  res.cookie['user_id', userID];
-  console.log(users);
+  res.cookie('user_id', userID);
+  console.log(users); //round brackets
   res.redirect("/urls");
   });
+
+//Passing the user Object to the _header, find endpoints for templates, define template Vars there to render 
+app.get("user_id", (req, res) => { //look up user object in users object using user_idadded : means what comes after is parameter (object where key is name, value is what user types in to browser)
+  //console.log(); //
+  const templateVars = { username: users[userID] }; // Pass object to templetes via templateVars 
+  //console.log();
+  res.render("_header", templateVars); //passed both urls into templateVars object 
+});
+
+
+
+
 
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");
