@@ -18,7 +18,29 @@ const passwordMatching = (users, email, password) => {
   return users[email].password === password
 };
 
-module.exports = { emailExists, passwordMatching }
+//getUser
+const getUser = (users, email) => {
+  for (let userID in users) {
+    if(email = users[userID].email) {
+      return users[userID];
+    }
+  }
+  return null;
+}
+
+//getUser by ID
+const getUserById = (users, id) => {
+  for (let userID in users) {
+    if(id = users[userID].id) {
+      return users[userID];
+    }
+  }
+  return null;
+}
+
+
+
+module.exports = { emailExists, passwordMatching, getUser, getUserById }
 //modules.passwordMatching = passwordMatching
 //modules.emailExists = emailExists
 

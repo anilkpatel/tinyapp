@@ -3,7 +3,7 @@
 //TinyApp
 //Anil Patel
 
-const { emailExists, passwordMatching } = require("./helpers/userHelpers.js");
+const { emailExists, passwordMatching, getUser, getUserById } = require("./helpers/userHelpers.js");
 //const { emailExists, passwordMatching } = require('./helpers/userHelpers')
 
 const express = require("express");
@@ -49,14 +49,14 @@ const users = {
 
 //Create GET /login endpoint responds with login form template
 app.get("/login", (req, res) => {
-  const templateVars = { username: null }; // Pass object to templetes via templateVars 
+  const templateVars = { user: null }; // Pass object to templetes via templateVars 
   res.render("login", templateVars); //local varibale
   //ONLY redirect on POST reqs
 });
 
 //store user dbase
 //all Get or POST the user req
-//find ID objects, grab it, use [], store in TemplateVars under User
+//find ID objects, grab it, use [], store in TemplateVars and make everything th same under User
 
 
 
@@ -64,7 +64,7 @@ app.get("/login", (req, res) => {
 //GET /register endpoint for Registration Page 
 
 app.get("/register", (req, res) => {  //returns registration template on the root path, "/".
-  const templateVars = { username: null }; // Pass object to templetes via templateVars 
+  const templateVars = { user: null }; // Pass object to templetes via templateVars 
   res.render("register", templateVars); //local varibale
   //console.log();
 });
@@ -72,11 +72,10 @@ app.get("/register", (req, res) => {  //returns registration template on the roo
 //Registering New Users
 //POST / register, to allow authentification / registration 
 app.post("/register", (req, res) => { //add new user obj to new user dbase
-  const {email} = req.body // destructuring 
-  const {password} = req.body
-
+  const {email, password} = req.body // destructuring 
+  
   console.log("here", emailExists(users, email), users[email], email);
-  if(!emailExists(users,email) && password.length) { //Modify POST /register endpoint for erros:
+  if(!emailExists(users,email) && password.length !== 0) { //Modify POST /register endpoint for erros:
     //register
     const userID = generateRandomString();
   //reg form in body of req, save into user object
@@ -108,7 +107,7 @@ app.get("user_id", (req, res) => { //look up user object in users object using u
 
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");
-  res.cookie['username'];
+  res.cookie['user_id'];
 });
 
 app.listen(PORT, () => {
@@ -125,19 +124,26 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
 
 //tells browser what to do // URL LIST (can go thru browser or the redirect)
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] }; //pass user name to index, and can see header
-  console.log(templateVars);
-  res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
+  let userID = req.cookies["user_id"] 
+  if (userID){
+    let user = getUserById(users, userID)
+    const templateVars = { urls: urlDatabase, user: user }; //pass user name to index, and can see header
+    console.log(templateVars);
+    res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
+  } else {
+    res.send("please login first")
+  }
+  
 });
 
 app.get("/urls/new", (req, res) => { //route handler will render the page with the form; needs to be defined before below 
-  const templateVars = {username: req.cookies["username"]}; 
+  const templateVars = {user: req.cookies["user_id"]}; 
   res.render("urls_new", templateVars); //local varibale 
 });
 
 app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value pairs 
   const shortUrl = req.params.shortURL; //not body, but params cause getting from url
-  const templateVars = {longURL: urlDatabase[shortUrl], username: req.cookies["username"]}; 
+  const templateVars = {longURL: urlDatabase[shortUrl], user_id: req.cookies["user_id"]}; 
   res.redirect(templateVars); //sending in response, pass in template with data
 });
 
@@ -149,28 +155,40 @@ app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value
 
 
 //LOGIN ROUTE: Add endpoint to handle a POST to /login in your Express server
-//set a cookie named username
-//do a redirect after call 
+//modify POST /login to use email and password files and set user_id cookie at login. previous set a cookie named username
+
 app.post('/login', (req, res) => { // post req with body
-  const userName = req.body.username; 
-  //console.log(username); 
-  res.cookie('username', userName) //set the cookie using key value pair; client gives username,  
-  const templateVars = {username: req.cookies["username"]}; 
-  res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
+  const {email, password} = req.body; // destructuring  
+  // if email incoming is the same as "   "
+  if(emailExists(users,email) && passwordMatching(users, email, password)) {
+    let userID = getUser(users, email).id
+    res.cookie('user_id', userID); //setting user ID
+    //const templateVars = {username: req.cookies["user_id"]}; 
+    //console.log(users); //round brackets
+    res.redirect("/urls");
+    } else {
+      // send 403
+      const errors = []
+      if(!password.length) errors.push('password length is 0')
+      else errors.push('wrong credentials')
+      res.status(403).json({ errors: errors.join(', ') })
+    }
 });
+
 ////CHANGE ABOVE: Post Log in End Point, using email and password to verify user
 ///if find, set cookie, not username but userID, everywhere use cookie change to userID
 //Cookie parser??
 
 
-//LOGOUT ROUTE: Add endpoint to handle a POST to /login in your Express server
-//clear the cookie named username
-//do a redirect after call 
+//LOGOUT ROUTE: 
+//Modify logout endpoint to clear the correct user_id cookie instead of the username one.
+//Previous: Add endpoint to handle a POST to /login in your Express server
 app.post('/logout', (req, res) => { // post req with body
-  const userName = req.body.username; 
-  //console.log(username); 
-  res.clearCookie('username', userName) //set the cookie using key value pair; client gives username,  
-  res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
+  //const userName = req.body.username; 
+  res.clearCookie('user_id')
+  //res.clearCookie('username', userName) //set the cookie using key value pair; client gives username,  
+  res.redirect('/login');
+  //res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
 });
 
 app.post ("/urls/:id", (req, res) => { //must match to front end urls_show, but back end noation for path
