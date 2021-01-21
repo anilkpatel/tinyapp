@@ -1,17 +1,21 @@
 <!--Lighthouse Labs-->
-<!--Week 3, Day 3-->
-<!--TinyApp: User Registration Form-->
+<!--Week 3, Day 4-->
+<!--TinyApp: A New Login Page-->
 <!--Anil Patel-->
+<!---->
 
-<%- include('partials/_head.ejs') %>
-
+<!--Login form: query user for email and password, send POST request to /login-->
+<head><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous"></head>
 	<body>
+		<%- include('partials/_header.ejs') %>
 		<h1>Login</h1>
-		<form action="/register" method="POST">
-			<input type="email" name="email" placeholder="Type your email">
-			<input type="password" name="password" placeholder="Type your password">
-      <button type="Submit">Log in</button>
-      <button></button> class="btn btn-primary" Edit</button> <!---->
+		<form action="/register" method="POST"><!---->
+			
+			<form id='login' action='/login' method='post' accept-charset='UTF-8'> <!--login path, login for username-->
+        <fieldset >
+        <input type='text' name='username' placeholder="Type your email" /><!--pass in username to all views to display next to form-->
+				<input type='password' name='password' placeholder="Type your password" value=''/><!--pass in username to all views to display next to form-->
+				<button type="Submit" class="btn btn-primary">Login</button> 
 		</form>
 	</body>
 

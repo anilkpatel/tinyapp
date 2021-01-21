@@ -47,16 +47,27 @@ const users = {
   }
 }
 
+//Create GET /login endpoint responds with login form template
+app.get("/login", (req, res) => {
+  const templateVars = { username: null }; // Pass object to templetes via templateVars 
+  res.render("login", templateVars); //local varibale
+  //ONLY redirect on POST reqs
+});
+
+//store user dbase
+//all Get or POST the user req
+//find ID objects, grab it, use [], store in TemplateVars under User
+
+
+
 //User Registration Form
 //GET /register endpoint for Registration Page 
 
-////CHANGE: email is harcoded /////
 app.get("/register", (req, res) => {  //returns registration template on the root path, "/".
-  const templateVars = { username: "user@example.com" }; // Pass object to templetes via templateVars 
+  const templateVars = { username: null }; // Pass object to templetes via templateVars 
   res.render("register", templateVars); //local varibale
   //console.log();
 });
-
 
 //Registering New Users
 //POST / register, to allow authentification / registration 
@@ -94,10 +105,6 @@ app.get("user_id", (req, res) => { //look up user object in users object using u
   //console.log();
   res.render("_header", templateVars); //passed both urls into templateVars object 
 });
-
-
-
-
 
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");

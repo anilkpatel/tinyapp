@@ -2,9 +2,7 @@
 <!--Week 3, Day 1-->
 <!--TinyApp-->
 <!--Anil Patel-->
-
-
-
+<!---->
 
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
@@ -18,6 +16,9 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
+    
+    <!--Registration Link-->
+    <!--Login Link conditional-->
     <% if(username){ %>
       <form id='logout' action='/logout' method='post' accept-charset='UTF-8'> <!--login path, login for username-->
         <fieldset >
@@ -27,12 +28,8 @@
       </fieldset>
       </form>
     <% } else { %>  
-      <form id='login' action='/login' method='post' accept-charset='UTF-8'> <!--login path, login for username-->
-        <fieldset >
-        <input type='text' name='username' value=''/><%= username %> <!--pass in username to all views to display next to form-->
-        <button type="submit" class="btn btn-primary">Login</button>
-        </fieldset>
-      </form>
+      <a href="/register">Register</a>
+      <a href="/login">Login</a>  
     <% } %>
   </nav>
 </header>
