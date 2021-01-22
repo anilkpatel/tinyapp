@@ -44,35 +44,33 @@ function urlsForUser(id) { //look thru urlDatabase object dbase, keys are shortU
       urls[shortURL] = urlDatabase[shortURL].longURL;
       } 
   }
-    console.log(urls);
+    console.log("here!", urls);
   return urls; 
 };
 
-/*
 //Users Can Only Edit or Delete Their Own URLs
+
 //checking urls returned from this function
 //See if key of what delete is in the urls in the object 
 //call the function, get urls back, and then if key not exist in it
 //don't let them delete
 //only compare
+
 //use the urls[shortURL] if exists let them do
 //if not they can't  
-urlsForUser.call {
-  if (urls[shortURL].userID === id){ //key is shortURL, and urlDatabase[shortURL] is object stored in that key
-    urls[shortURL] = urlDatabase[shortURL].longURL;
-    } 
-}
 
-}
-console.log(urls);
-return urls; 
-};
+//inside app.get /urls:short
+//compare urls short to usrs from urlReader
+//if short url exists in users URL
+//then res.render
+//else res.redirect or message
 
-if exist 
-do it true
-else
-false
-*/
+//same for delete route (from browser path
+//app.get or post url delete)
+//check if belongs as above
+//else show error or redirect
+
+
 
 const users = { 
   "userRandomID": {
@@ -130,6 +128,37 @@ app.post("/register", (req, res) => { //add new user obj to new user dbase
   }
 });
 
+
+
+
+//BCRYPT: Modify registration endpoint with bcrypt to hash the password
+
+const addNewUser = (name, email, password) => {
+  // Generate a random id
+  // const userId = uuid().substr(0, 8);
+  const userId = Object.keys(usersDb).length + 1;
+
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const newUserObj = {
+    id: userId,
+    name,
+    email,
+    password: bcrypt.hashSync(password, salt),
+    salt,
+  };
+
+  // Add the user Object into the usersDb
+
+  usersDb[userId] = newUserObj;
+
+  // return the id of the user
+
+  return userId;
+};
+
+
+
+
 //Passing the user Object to the _header, find endpoints for templates, define template Vars there to render 
 app.get("user_id", (req, res) => { //look up user object in users object using user_idadded : means what comes after is parameter (object where key is name, value is what user types in to browser)
   //console.log(); //
@@ -155,18 +184,16 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-
-
 //tells browser what to do // URL LIST (can go thru browser or the redirect)
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
-  let userID = req.cookies["user_id"] 
+  let userID = req.cookies["user_id"] //check cookies for userID, if have
   if (userID){
     let user = getUserById(users, userID)
     let urls = urlsForUser(userID);
     const templateVars = { urls: urls, user: user }; //pass user name to index, and can see header
     console.log(templateVars);
     res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
-  } else {
+  } else { //don't have, send to register
     //res.send("please login first")
     res.redirect('/register')
   }
@@ -186,7 +213,7 @@ app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value
 //LOGIN ROUTE: Add endpoint to handle a POST to /login in your Express server
 //modify POST /login to use email and password files and set user_id cookie at login. previous set a cookie named username
 
-app.post('/login', (req, res) => { // post req with body
+app.post('/login', (req, res) => { // post req with body, extract info from form 
   const {email, password} = req.body; // destructuring  
   console.log(email, password); 
   // if email incoming is the same as "   "
@@ -204,6 +231,40 @@ app.post('/login', (req, res) => { // post req with body
       res.status(403).json({ errors: errors.join(', ') })
     }
 });
+
+/*
+// AUTHENTIFCATION: Authenticate the user
+app.post('/login', (req, res) => {
+  // extract the info from the form
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // Authenticate the user
+  const user = authenticateUser(email, password);
+
+  // if authenticated, set cookie with its user id and redirect
+  if (user) {
+    req.session['user_id'] = user.id;
+    res.redirect('/quotes');
+  } else {
+    // otherwise we send an error message
+    res.status(401).send('Wrong credentials!');
+  }
+});
+
+app.post('/logout', (req, res) => {
+  // clear the cookies
+
+  req.session['user_id'] = null;
+
+  // redirect to /quotes
+  res.redirect('/quotes');
+});
+
+*/
+
+
+
 
 //LOGOUT ROUTE: 
 //Modify logout endpoint to clear the correct user_id cookie instead of the username one.
@@ -229,6 +290,7 @@ app.post ("/urls/:id", (req, res) => { //must match to front end urls_show, but 
 
 //Most specific to least specific, there this POST before next
 //POST request to removes a URL resource: POST /urls/:shortURL/delete
+
 // delete longURL from dbase using req, res
 app.post('/urls/:shortURL/delete', (req, res) => { //SAVE longURL from short
   //send request to delete, use params  
@@ -254,7 +316,7 @@ app.post("/urls", (req, res) => { //SAVE longURL from short
 //access urlDatabase object 
 app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is parameter (object where key is name, value is what user types in to browser)
   console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"]}; // want JS to get two to match 
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: req.cookies["username"]}; // want JS to get two to match 
   //console.log("here: >>>>>>>>", urlDatabase[req.params.shortURL]);
   res.render("urls_show", templateVars); //passed both urls into templateVars object 
 });

@@ -3,6 +3,10 @@
 //TinyApp, Helper functions
 //Anil Patel
 
+
+//const keys = Object.keys(urlsForUser(id)) //define fn with args, pass args to fn, invoke fn with params
+  //console.log(keys)
+
 ///If someone tries to register with email already in users object, send back 400 status code
 
 const emailExists = (users, email) => {
