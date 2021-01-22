@@ -29,10 +29,50 @@ function generateRandomString() {
 
 //console.log(generateRandomString()); 
 
+///urls page will filter the entire list in the urlDatabase 
+//Compare userID with the logged-in user's ID
 const urlDatabase = { //use JS to get long url from short url based on dabse 
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "userRandomID"}, 
+  "9sm5xK": {longURL: "http://www.google.com", userID: "7sb4xk"}
 };
+
+function urlsForUser(id) { //look thru urlDatabase object dbase, keys are shortURL
+  const urls = {}
+  for (let shortURL in urlDatabase) {
+    console.log(urlDatabase[shortURL].userID);
+    if (urlDatabase[shortURL].userID === id){ //key is shortURL, and urlDatabase[shortURL] is object stored in that key
+      urls[shortURL] = urlDatabase[shortURL].longURL;
+      } 
+  }
+    console.log(urls);
+  return urls; 
+};
+
+/*
+//Users Can Only Edit or Delete Their Own URLs
+//checking urls returned from this function
+//See if key of what delete is in the urls in the object 
+//call the function, get urls back, and then if key not exist in it
+//don't let them delete
+//only compare
+//use the urls[shortURL] if exists let them do
+//if not they can't  
+urlsForUser.call {
+  if (urls[shortURL].userID === id){ //key is shortURL, and urlDatabase[shortURL] is object stored in that key
+    urls[shortURL] = urlDatabase[shortURL].longURL;
+    } 
+}
+
+}
+console.log(urls);
+return urls; 
+};
+
+if exist 
+do it true
+else
+false
+*/
 
 const users = { 
   "userRandomID": {
@@ -54,15 +94,8 @@ app.get("/login", (req, res) => {
   //ONLY redirect on POST reqs
 });
 
-//store user dbase
-//all Get or POST the user req
-//find ID objects, grab it, use [], store in TemplateVars and make everything th same under User
-
-
-
 //User Registration Form
 //GET /register endpoint for Registration Page 
-
 app.get("/register", (req, res) => {  //returns registration template on the root path, "/".
   const templateVars = { user: null }; // Pass object to templetes via templateVars 
   res.render("register", templateVars); //local varibale
@@ -122,18 +155,21 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+
+
 //tells browser what to do // URL LIST (can go thru browser or the redirect)
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
   let userID = req.cookies["user_id"] 
   if (userID){
     let user = getUserById(users, userID)
-    const templateVars = { urls: urlDatabase, user: user }; //pass user name to index, and can see header
+    let urls = urlsForUser(userID);
+    const templateVars = { urls: urls, user: user }; //pass user name to index, and can see header
     console.log(templateVars);
     res.render("urls_index", templateVars); //EJS looks inside views for extension .ejs
   } else {
-    res.send("please login first")
+    //res.send("please login first")
+    res.redirect('/register')
   }
-  
 });
 
 app.get("/urls/new", (req, res) => { //route handler will render the page with the form; needs to be defined before below 
@@ -147,18 +183,12 @@ app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value
   res.redirect(templateVars); //sending in response, pass in template with data
 });
 
-
-///ERROR: Need to change username to user, read cookie, get userID from cookie, 
-//look up userID in database, if locate pass into templateVars
-//update for all pages using _header.ejs
-
-
-
 //LOGIN ROUTE: Add endpoint to handle a POST to /login in your Express server
 //modify POST /login to use email and password files and set user_id cookie at login. previous set a cookie named username
 
 app.post('/login', (req, res) => { // post req with body
   const {email, password} = req.body; // destructuring  
+  console.log(email, password); 
   // if email incoming is the same as "   "
   if(emailExists(users,email) && passwordMatching(users, email, password)) {
     let userID = getUser(users, email).id
@@ -174,11 +204,6 @@ app.post('/login', (req, res) => { // post req with body
       res.status(403).json({ errors: errors.join(', ') })
     }
 });
-
-////CHANGE ABOVE: Post Log in End Point, using email and password to verify user
-///if find, set cookie, not username but userID, everywhere use cookie change to userID
-//Cookie parser??
-
 
 //LOGOUT ROUTE: 
 //Modify logout endpoint to clear the correct user_id cookie instead of the username one.

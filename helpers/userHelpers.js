@@ -15,7 +15,12 @@ const emailExists = (users, email) => {
 //If the e-mail or password are empty strings, send back response with 400 status code
 const passwordMatching = (users, email, password) => {
   if (!password.length) return false;
-  return users[email].password === password
+  for(let userID in users) {
+    if (users[userID].email === email && users[userID].password === password) {
+      return true;
+    }
+  }
+  return false; 
 };
 
 //getUser

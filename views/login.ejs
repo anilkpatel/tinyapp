@@ -9,11 +9,11 @@
 	<body>
 		<%- include('partials/_header.ejs') %>
 		<h1>Login</h1>
-		<form action="/register" method="POST"><!---->
+		<form action="/login" method="POST"><!---->
 			
 			<form id='login' action='/login' method='post' accept-charset='UTF-8'> <!--login path, login for username-->
         <fieldset >
-        <input type='text' name='username' placeholder="Type your email" /><!--pass in username to all views to display next to form-->
+        <input type='text' name='email' placeholder="Type your email" /><!--pass in username to all views to display next to form-->
 				<input type='password' name='password' placeholder="Type your password" value=''/><!--pass in username to all views to display next to form-->
 				<button type="Submit" class="btn btn-primary">Login</button> 
 		</form>
