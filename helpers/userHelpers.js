@@ -3,6 +3,7 @@
 //TinyApp, Helper functions
 //Anil Patel
 
+const bcrypt = require('bcrypt')
 
 //const keys = Object.keys(urlsForUser(id)) //define fn with args, pass args to fn, invoke fn with params
   //console.log(keys)
@@ -19,18 +20,18 @@ const emailExists = (users, email) => {
 //If the e-mail or password are empty strings, send back response with 400 status code
 const passwordMatching = (users, email, password) => {
   if (!password.length) return false;
-  for(let userID in users) {
-    if (users[userID].email === email && users[userID].password === password) {
-      return true;
+  for(let userID in users) {  //instead of comparing unencripted, now compare encript 
+    if (users[userID].email === email) {
+    return bcrypt.compareSync(password, users[userID].password); 
     }
   }
-  return false; 
+  return false; //if no matching email, use email to find and compare password
 };
 
 //getUser
 const getUser = (users, email) => {
   for (let userID in users) {
-    if(email = users[userID].email) {
+    if(email === users[userID].email) {
       return users[userID];
     }
   }
@@ -40,7 +41,7 @@ const getUser = (users, email) => {
 //getUser by ID
 const getUserById = (users, id) => {
   for (let userID in users) {
-    if(id = users[userID].id) {
+    if(id === users[userID].id) {
       return users[userID];
     }
   }

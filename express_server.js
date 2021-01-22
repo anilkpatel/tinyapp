@@ -111,7 +111,7 @@ app.post("/register", (req, res) => { //add new user obj to new user dbase
   if(!emailExists(users,email) && password.length !== 0) { //Modify POST /register endpoint for erros:
     //register
     const userID = generateRandomString();
-    let hashedPassword = bcrypt.hashSync(newPassword, 10);
+    let hashedPassword = bcrypt.hashSync(password, 10);
     //const salt = bcrypt.genSaltSync(saltRounds);
   //reg form in body of req, save into user object
   //user ID is key
@@ -143,7 +143,7 @@ app.get("user_id", (req, res) => { //look up user object in users object using u
 
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");
-  res.cookie['user_id'];
+  res.cookie['user_id'];  //res.session
 });
 
 app.listen(PORT, () => {
@@ -189,16 +189,9 @@ app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value
 
 app.post('/login', (req, res) => { // post req with body, extract info from form 
   const {email, password} = req.body; // destructuring  
-  console.log(email, password); 
-  // if email incoming is the same as "   "
-  //bcrypt required for this fn, therefore hash password here and pass it in
-  //bcrypt.compareSync(myPlaintextPassword, hash); hash we have in users dbase
-  //need to extract hashed password out of dbase, don't yet know userID
+  //console.log(email, password); 
   if(emailExists(users,email) && passwordMatching(users, email, password)) {
-    
-    //get userID out of emailExists, loops over users dbase using email, then match, then if found, could encrypt at that point dbase to find  
-    //if (user && bcrypt.compareSync(password, user.password)) 
-    
+  //password is salted  
     let userID = getUser(users, email).id
     res.cookie('user_id', userID); //setting user ID
     //const templateVars = {username: req.cookies["user_id"]}; 
@@ -215,10 +208,14 @@ app.post('/login', (req, res) => { // post req with body, extract info from form
 
 /*
 // AUTHENTIFCATION: Authenticate the user
-app.post('/login', (req, res) => {
-  // extract the info from the form
-  const email = req.body.email;
-  const password = req.body.password;
+//Modify login endpoint to use bcrypt to check the password.
+
+    //get userID out of emailExists, loops over users dbase using email, then match, then if found, could encrypt at that point dbase to find  
+    //if (user && bcrypt.compareSync(password, user.password)) 
+// if email incoming is the same as "   "
+  //bcrypt required for this fn, therefore hash password here and pass it in
+  //bcrypt.compareSync(myPlaintextPassword, hash); hash we have in users dbase
+  //need to extract hashed password out of dbase, don't yet know userID
 
   // Authenticate the user
   const user = authenticateUser(email, password);
