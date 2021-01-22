@@ -9,6 +9,8 @@ const { emailExists, passwordMatching, getUser, getUserById } = require("./helpe
 const express = require("express");
 const app = express();
 const PORT = 8080; // default 
+const bcrypt = require('bcrypt');
+//const saltRounds = 10;
 
 const bodyParser = require("body-parser"); //convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body. 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -105,17 +107,20 @@ app.get("/register", (req, res) => {  //returns registration template on the roo
 app.post("/register", (req, res) => { //add new user obj to new user dbase
   const {email, password} = req.body // destructuring 
   
-  console.log("here", emailExists(users, email), users[email], email);
+  //console.log("here", emailExists(users, email), users[email], email);
   if(!emailExists(users,email) && password.length !== 0) { //Modify POST /register endpoint for erros:
     //register
     const userID = generateRandomString();
+    let hashedPassword = bcrypt.hashSync(newPassword, 10);
+    //const salt = bcrypt.genSaltSync(saltRounds);
   //reg form in body of req, save into user object
   //user ID is key
-    users[userID] = {
+    users[userID] = { //set up entry in object, userID is key and it has a value
      id: userID, 
      email, 
-     password
-    } 
+     password: hashedPassword, //BCRYPT: Modify registration endpoint with bcrypt to hash the password
+    };
+        
   res.cookie('user_id', userID);
   console.log(users); //round brackets
   res.redirect("/urls");
@@ -127,37 +132,6 @@ app.post("/register", (req, res) => { //add new user obj to new user dbase
     res.status(400).json({ errors: errors.join(', ') })
   }
 });
-
-
-
-
-//BCRYPT: Modify registration endpoint with bcrypt to hash the password
-
-const addNewUser = (name, email, password) => {
-  // Generate a random id
-  // const userId = uuid().substr(0, 8);
-  const userId = Object.keys(usersDb).length + 1;
-
-  const salt = bcrypt.genSaltSync(saltRounds);
-  const newUserObj = {
-    id: userId,
-    name,
-    email,
-    password: bcrypt.hashSync(password, salt),
-    salt,
-  };
-
-  // Add the user Object into the usersDb
-
-  usersDb[userId] = newUserObj;
-
-  // return the id of the user
-
-  return userId;
-};
-
-
-
 
 //Passing the user Object to the _header, find endpoints for templates, define template Vars there to render 
 app.get("user_id", (req, res) => { //look up user object in users object using user_idadded : means what comes after is parameter (object where key is name, value is what user types in to browser)
@@ -217,7 +191,14 @@ app.post('/login', (req, res) => { // post req with body, extract info from form
   const {email, password} = req.body; // destructuring  
   console.log(email, password); 
   // if email incoming is the same as "   "
+  //bcrypt required for this fn, therefore hash password here and pass it in
+  //bcrypt.compareSync(myPlaintextPassword, hash); hash we have in users dbase
+  //need to extract hashed password out of dbase, don't yet know userID
   if(emailExists(users,email) && passwordMatching(users, email, password)) {
+    
+    //get userID out of emailExists, loops over users dbase using email, then match, then if found, could encrypt at that point dbase to find  
+    //if (user && bcrypt.compareSync(password, user.password)) 
+    
     let userID = getUser(users, email).id
     res.cookie('user_id', userID); //setting user ID
     //const templateVars = {username: req.cookies["user_id"]}; 
@@ -285,13 +266,8 @@ app.post ("/urls/:id", (req, res) => { //must match to front end urls_show, but 
   res.redirect("/urls");  //there is no object to render, using redirect
 });
 
-//have front end info in backend, now update dbase
-//use object as dbase, we have key, change longURL in object
-
-//Most specific to least specific, there this POST before next
-//POST request to removes a URL resource: POST /urls/:shortURL/delete
-
 // delete longURL from dbase using req, res
+//shortURL/delete is dynamic, therefore Users Can Only Edit or Delete Their Own URLs
 app.post('/urls/:shortURL/delete', (req, res) => { //SAVE longURL from short
   //send request to delete, use params  
   const shortUrl = req.params.shortURL; 
