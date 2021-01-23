@@ -5,10 +5,7 @@
 
 const bcrypt = require('bcrypt')
 
-//const keys = Object.keys(urlsForUser(id)) //define fn with args, pass args to fn, invoke fn with params
-  //console.log(keys)
-
-///If someone tries to register with email already in users object, send back 400 status code
+//If someone tries to register with email already in users object, send back 400 status code
 
 const emailExists = (users, email) => {
   for(let key in users) {
@@ -51,7 +48,3 @@ const getUserById = (users, id) => {
 
 
 module.exports = { emailExists, passwordMatching, getUser, getUserById }
-//modules.passwordMatching = passwordMatching
-//modules.emailExists = emailExists
-
-//module.exports = { emailExists: emailExists, passwordMatching: passwordMatching }
