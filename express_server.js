@@ -10,13 +10,16 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default 
 const bcrypt = require('bcrypt');
-//const saltRounds = 10;
+// const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
+
+app.use(cookieSession({
+  name: 'session',
+  keys: ['TEST'],
+  maxAge: 24 * 60 * 60 * 1000})); // 24 hours
 
 const bodyParser = require("body-parser"); //convert the request body from a Buffer into string that we can read. It will then add the data to the req(request) object under the key body. 
 app.use(bodyParser.urlencoded({extended: true}));
-
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
@@ -49,30 +52,6 @@ function urlsForUser(id) { //look thru urlDatabase object dbase, keys are shortU
     console.log("here!", urls);
   return urls; 
 };
-
-//Users Can Only Edit or Delete Their Own URLs
-
-//checking urls returned from this function
-//See if key of what delete is in the urls in the object 
-//call the function, get urls back, and then if key not exist in it
-//don't let them delete
-//only compare
-
-//use the urls[shortURL] if exists let them do
-//if not they can't  
-
-//inside app.get /urls:short
-//compare urls short to usrs from urlReader
-//if short url exists in users URL
-//then res.render
-//else res.redirect or message
-
-//same for delete route (from browser path
-//app.get or post url delete)
-//check if belongs as above
-//else show error or redirect
-
-
 
 const users = { 
   "userRandomID": {
@@ -112,16 +91,16 @@ app.post("/register", (req, res) => { //add new user obj to new user dbase
     //register
     const userID = generateRandomString();
     let hashedPassword = bcrypt.hashSync(password, 10);
-    //const salt = bcrypt.genSaltSync(saltRounds);
-  //reg form in body of req, save into user object
-  //user ID is key
+    //reg form in body of req, save into user object
+    //user ID is key
     users[userID] = { //set up entry in object, userID is key and it has a value
      id: userID, 
      email, 
      password: hashedPassword, //BCRYPT: Modify registration endpoint with bcrypt to hash the password
     };
         
-  res.cookie('user_id', userID);
+  req.session.user_id = userID;
+  //res.cookie('user_id', userID);
   console.log(users); //round brackets
   res.redirect("/urls");
   } else {
@@ -143,7 +122,8 @@ app.get("user_id", (req, res) => { //look up user object in users object using u
 
 app.get("/", (req, res) => {  //registers a handler on the root path, "/".
   res.send("Hello!");
-  res.cookie['user_id'];  //res.session
+  //res.cookie['user_id'];  
+  req.session.user_id
 });
 
 app.listen(PORT, () => {
@@ -160,7 +140,8 @@ app.get("/hello", (req, res) => { //HTML response code, rendered in client
 
 //tells browser what to do // URL LIST (can go thru browser or the redirect)
 app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.ejs in views folder
-  let userID = req.cookies["user_id"] //check cookies for userID, if have
+  let userID = req.session.user_id; 
+  //let userID = req.cookies["user_id"] //check cookies for userID, if have
   if (userID){
     let user = getUserById(users, userID)
     let urls = urlsForUser(userID);
@@ -174,13 +155,15 @@ app.get("/urls", (req, res) => { //pass the URL data to our template urls_index.
 });
 
 app.get("/urls/new", (req, res) => { //route handler will render the page with the form; needs to be defined before below 
-  const templateVars = {user: req.cookies["user_id"]}; 
+  const templateVars = {user: req.session.user_id};
+  //const templateVars = {user: req.cookies["user_id"]}; 
   res.render("urls_new", templateVars); //local varibale 
 });
 
 app.get("/u/:shortURL", (req, res) => { //GRAB longURL from short, use key value pairs 
   const shortUrl = req.params.shortURL; //not body, but params cause getting from url
-  const templateVars = {longURL: urlDatabase[shortUrl], user_id: req.cookies["user_id"]}; 
+  const templateVars = {longURL: urlDatabase[shortUrl], user_id: req.session.user_id["user_id"]}; 
+  //const templateVars = {longURL: urlDatabase[shortUrl], user_id: req.cookies["user_id"]}; 
   res.redirect(templateVars); //sending in response, pass in template with data
 });
 
@@ -193,7 +176,8 @@ app.post('/login', (req, res) => { // post req with body, extract info from form
   if(emailExists(users,email) && passwordMatching(users, email, password)) {
   //password is salted  
     let userID = getUser(users, email).id
-    res.cookie('user_id', userID); //setting user ID
+    req.session.user_id
+    //res.cookie('user_id', userID); //setting user ID
     //const templateVars = {username: req.cookies["user_id"]}; 
     //console.log(users); //round brackets
     res.redirect("/urls");
@@ -206,50 +190,13 @@ app.post('/login', (req, res) => { // post req with body, extract info from form
     }
 });
 
-/*
-// AUTHENTIFCATION: Authenticate the user
-//Modify login endpoint to use bcrypt to check the password.
-
-    //get userID out of emailExists, loops over users dbase using email, then match, then if found, could encrypt at that point dbase to find  
-    //if (user && bcrypt.compareSync(password, user.password)) 
-// if email incoming is the same as "   "
-  //bcrypt required for this fn, therefore hash password here and pass it in
-  //bcrypt.compareSync(myPlaintextPassword, hash); hash we have in users dbase
-  //need to extract hashed password out of dbase, don't yet know userID
-
-  // Authenticate the user
-  const user = authenticateUser(email, password);
-
-  // if authenticated, set cookie with its user id and redirect
-  if (user) {
-    req.session['user_id'] = user.id;
-    res.redirect('/quotes');
-  } else {
-    // otherwise we send an error message
-    res.status(401).send('Wrong credentials!');
-  }
-});
-
-app.post('/logout', (req, res) => {
-  // clear the cookies
-
-  req.session['user_id'] = null;
-
-  // redirect to /quotes
-  res.redirect('/quotes');
-});
-
-*/
-
-
-
-
 //LOGOUT ROUTE: 
 //Modify logout endpoint to clear the correct user_id cookie instead of the username one.
 //Previous: Add endpoint to handle a POST to /login in your Express server
 app.post('/logout', (req, res) => { // post req with body
   //const userName = req.body.username; 
-  res.clearCookie('user_id')
+  req.session = null;
+  //res.clearCookie('user_id')
   //res.clearCookie('username', userName) //set the cookie using key value pair; client gives username,  
   res.redirect('/login');
   //res.redirect('/urls'); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
@@ -264,6 +211,7 @@ app.post ("/urls/:id", (req, res) => { //must match to front end urls_show, but 
 });
 
 // delete longURL from dbase using req, res
+//Users Can Only Edit or Delete Their Own URLs
 //shortURL/delete is dynamic, therefore Users Can Only Edit or Delete Their Own URLs
 app.post('/urls/:shortURL/delete', (req, res) => { //SAVE longURL from short
   //send request to delete, use params  
@@ -281,7 +229,7 @@ app.post("/urls", (req, res) => { //SAVE longURL from short
   //console.log(shortUrl);
   const longUrl = req.body.longURL; // grabbing the long url from the form body  
   //console.log(longUrl)
-  urlDatabase[shortUrl] = longUrl // value of shortUrl is the key; longURL is value. 
+  urlDatabase[shortUrl] = { userID: req.session["user_id"], longURL: longUrl };  // Update, setting owner id and longURL; value of shortUrl is the key; longURL is value. 
   //console.log(urlDatabase);
   res.redirect("/urls"); //redirect back to list of URLs. Can't be longURL cause redirect to whatever put in
 });
@@ -289,7 +237,8 @@ app.post("/urls", (req, res) => { //SAVE longURL from short
 //access urlDatabase object 
 app.get("/urls/:shortURL", (req, res) => { //added : means what comes after is parameter (object where key is name, value is what user types in to browser)
   console.log(req.params.shortURL); //takes in what user puts in ie. http://localhost:8080/urls/helen
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: req.cookies["username"]}; // want JS to get two to match 
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: req.session.user_id["username"]}; // want JS to get two to match 
+  //const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: req.cookies["username"]}; // want JS to get two to match 
   //console.log("here: >>>>>>>>", urlDatabase[req.params.shortURL]);
   res.render("urls_show", templateVars); //passed both urls into templateVars object 
 });
